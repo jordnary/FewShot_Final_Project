@@ -1,0 +1,58 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.env
+.venv/
+venv/
+env/
+ENV/
+01_environment/.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Datasets and generated experiment artifacts
+03_datasets/
+04_baseline_experiments/results/
+05_paper_reproduction/results/
+06_improvement/results/
+02_libfewshot/LibFewShot/results/
+
+# Model checkpoints / large binary artifacts
+*.ckpt
+*.pt
+*.pth
+*.pkl
+*.pickle
+*.npy
+*.npz
+*.t7
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+
+# Nested upstream clone metadata; track source files in this project repo instead.
+02_libfewshot/LibFewShot/.git/
+02_libfewshot/LibFewShot/.git-upstream-backup/

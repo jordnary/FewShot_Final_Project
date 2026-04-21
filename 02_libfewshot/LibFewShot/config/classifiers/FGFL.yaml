@@ -2,5 +2,5 @@
 # This classifier integrates frequency domain processing with graph-based learning
 
 classifier:
-  name: GAINMODEL
+  name: GAINModel
   kwargs:

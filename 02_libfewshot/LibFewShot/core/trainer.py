@@ -529,7 +529,7 @@ class Trainer(object):
 
             return model, model.module.model_type
         else:
-            model = model.to(self.rank)
+            model = model.to(self.device)
 
             return model, model.model_type
 
@@ -788,9 +788,10 @@ class Trainer(object):
         """
         Check the config params.
         """
+        effective_n_gpu = max(1, self.config["n_gpu"])
         # check: episode_size >= n_gpu and episode_size != 0
         assert (
-            self.config["episode_size"] >= self.config["n_gpu"]
+            self.config["episode_size"] >= effective_n_gpu
             and self.config["episode_size"] != 0
         ), "episode_size {} should be >= n_gpu {} and != 0".format(
             self.config["episode_size"], self.config["n_gpu"]
@@ -798,7 +799,7 @@ class Trainer(object):
 
         # check: episode_size % n_gpu == 0
         assert (
-            self.config["episode_size"] % self.config["n_gpu"] == 0
+            self.config["episode_size"] % effective_n_gpu == 0
         ), "episode_size {} % n_gpu {} != 0".format(
             self.config["episode_size"], self.config["n_gpu"]
         )

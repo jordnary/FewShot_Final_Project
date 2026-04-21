@@ -5,21 +5,21 @@ includes:
   - headers/model.yaml
   - headers/optimizer.yaml
   - classifiers/Proto.yaml
-  - backbones/Conv64F.yaml
+  - backbones/resnet12.yaml
 
-data_root: D:/Codes/Python/Machine_Learning/FewShot_Final_Project/03_datasets/CUB_200_2011
+data_root: ${PROJECT_ROOT}/03_datasets/CUB_200_2011
 image_size: 84
 use_memory: False
 augment: True
 augment_times: 1
 augment_times_query: 1
-workers: 0
+workers: 16
 dataloader_num: 1
 
 device_ids: 0
 n_gpu: 1
 seed: 12
-deterministic: True
+deterministic: False
 
 way_num: 5
 shot_num: 5
@@ -27,37 +27,36 @@ query_num: 15
 test_way: 5
 test_shot: 5
 test_query: 15
-episode_size: 1
-train_episode: 1000
-test_episode: 600
-epoch: 100
-val_per_epoch: 10
+episode_size: 4
+train_episode: 2000
+test_episode: 1000
+epoch: 120
+val_per_epoch: 5
 
 backbone:
-  name: Conv64F
+  name: resnet12
   kwargs:
+    keep_prob: 0.0
+    avg_pool: True
     is_flatten: True
-    is_feature: False
-    leaky_relu: False
-    negative_slope: 0.2
-    last_pool: True
+    maxpool_last2: True
 
 optimizer:
-  name: SGD
+  name: Adam
   kwargs:
     lr: 0.001
     weight_decay: 0.0005
   other: ~
 
 lr_scheduler:
-  name: CosineAnnealingLR
+  name: StepLR
   kwargs:
-    T_max: 100
-    eta_min: 0
+    step_size: 20
+    gamma: 0.5
 
 warmup: 0
-result_root: D:/Codes/Python/Machine_Learning/FewShot_Final_Project/04_baseline_experiments/results
-log_name: proto_cub_conv64f_formal_5way_5shot
+result_root: ${PROJECT_ROOT}/04_baseline_experiments/results
+log_name: proto_cub_resnet12_boost_5way_5shot_cloud
 log_interval: 100
 save_interval: 10
 save_part:

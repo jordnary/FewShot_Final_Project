@@ -1,0 +1,10 @@
+classifier:
+  name: FroFAProtoNet
+  kwargs:
+    augmentations:
+      - brightness
+    alpha: 0.2
+    num_aug: 2
+    distance: euclidean
+    freeze_emb_func: False
+    learnable_scale: True

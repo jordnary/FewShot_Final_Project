@@ -1,0 +1,2 @@
+experiment,method,dataset,backbone,mode,shot,train_setting,test_episodes,final_test_acc,runtime,status,log_file
+frofa_proto_cub_resnet12_frozen_5way_1shot_cloud,FroFAProtoNet,CUB,ResNet12,frozen,5-way 1-shot,30 epochs; 2000 train episodes/epoch,1000,73.324%,0:38:22,finished,frofa_proto_cub_resnet12_frozen_5way_1shot_cloud_console.log

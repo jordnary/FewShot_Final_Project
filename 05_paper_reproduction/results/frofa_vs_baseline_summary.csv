@@ -1,4 +1,4 @@
 method,dataset,5-way 1-shot,5-way 5-shot
-ProtoNet-ResNet12 baseline,CUB,73.38%,85.94%
-FroFAProtoNet-ResNet12,CUB,74.00%,86.00%
-FroFAProtoNet-ResNet12 frozen,CUB,73.32%,85.81%
+ProtoNet-ResNet12 baseline,CUB,73.376%,85.945%
+FroFAProtoNet-ResNet12,CUB,74.004%,85.997%
+FroFAProtoNet-ResNet12 frozen,CUB,73.324%,85.805%

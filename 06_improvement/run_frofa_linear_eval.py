@@ -180,25 +180,13 @@ def write_results(rows, output_prefix):
     output_prefix = Path(output_prefix)
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     csv_path = output_prefix.with_suffix(".csv")
-    md_path = output_prefix.with_suffix(".md")
 
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
         writer.writerow(["method", "backbone", "classifier", "setting", "accuracy", "ci95"])
         writer.writerows(rows)
 
-    lines = [
-        "# CLIP frozen feature + FroFA linear probe results",
-        "",
-        "| Method | Backbone | Classifier | Setting | Accuracy | 95% CI |",
-        "|---|---|---|---|---:|---:|",
-    ]
-    for method, backbone, classifier, setting, accuracy, ci95 in rows:
-        lines.append(
-            f"| {method} | {backbone} | {classifier} | {setting} | {accuracy:.3f}% | +/- {ci95:.3f}% |"
-        )
-    md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return csv_path, md_path
+    return csv_path
 
 
 def parse_args():
@@ -260,9 +248,8 @@ def main():
                 f"{method_name} {args.way}-way {shot}-shot: {mean:.3f}% +/- {ci95:.3f}%"
             )
 
-    csv_path, md_path = write_results(rows, args.output_prefix)
+    csv_path = write_results(rows, args.output_prefix)
     print(f"saved {csv_path}")
-    print(f"saved {md_path}")
 
 
 if __name__ == "__main__":

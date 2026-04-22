@@ -38,25 +38,12 @@ run_one() {
 
 MODE="${1:-resnet12}"
 
-case "$MODE" in
-  resnet12)
-    run_one "proto_cub_resnet12_boost_5way_1shot_cloud.yaml" "proto_cub_resnet12_boost_5way_1shot_cloud"
-    run_one "proto_cub_resnet12_boost_5way_5shot_cloud.yaml" "proto_cub_resnet12_boost_5way_5shot_cloud"
-    ;;
-  conv64f)
-    run_one "proto_cub_conv64f_boost_5way_1shot_cloud.yaml" "proto_cub_conv64f_boost_5way_1shot_cloud"
-    run_one "proto_cub_conv64f_boost_5way_5shot_cloud.yaml" "proto_cub_conv64f_boost_5way_5shot_cloud"
-    ;;
-  all)
-    run_one "proto_cub_resnet12_boost_5way_1shot_cloud.yaml" "proto_cub_resnet12_boost_5way_1shot_cloud"
-    run_one "proto_cub_resnet12_boost_5way_5shot_cloud.yaml" "proto_cub_resnet12_boost_5way_5shot_cloud"
-    run_one "proto_cub_conv64f_boost_5way_1shot_cloud.yaml" "proto_cub_conv64f_boost_5way_1shot_cloud"
-    run_one "proto_cub_conv64f_boost_5way_5shot_cloud.yaml" "proto_cub_conv64f_boost_5way_5shot_cloud"
-    ;;
-  *)
-    echo "Usage: bash 04_baseline_experiments/run_proto_cub_boost_cloud.sh [resnet12|conv64f|all]" >&2
-    exit 2
-    ;;
-esac
+if [[ "$MODE" != "resnet12" ]]; then
+  echo "Usage: bash 04_baseline_experiments/run_proto_cub_boost_cloud.sh [resnet12]" >&2
+  exit 2
+fi
+
+run_one "proto_cub_resnet12_boost_5way_1shot_cloud.yaml" "proto_cub_resnet12_boost_5way_1shot_cloud"
+run_one "proto_cub_resnet12_boost_5way_5shot_cloud.yaml" "proto_cub_resnet12_boost_5way_5shot_cloud"
 
 python "$PROJECT_ROOT/04_baseline_experiments/summarize_boost_results.py"

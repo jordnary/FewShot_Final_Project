@@ -13,12 +13,6 @@ RUNS = [
         "proto_cub_resnet12_boost_5way_1shot_cloud_console.log",
         "proto_cub_resnet12_boost_5way_5shot_cloud_console.log",
     ),
-    (
-        "ProtoNet-Conv64F",
-        "CUB",
-        "proto_cub_conv64f_boost_5way_1shot_cloud_console.log",
-        "proto_cub_conv64f_boost_5way_5shot_cloud_console.log",
-    ),
 ]
 
 
@@ -58,18 +52,7 @@ def main() -> None:
         "\n".join(csv_lines) + "\n", encoding="utf-8"
     )
 
-    md_lines = [
-        "# Boosted ProtoNet Baseline Results",
-        "",
-        "| 方法 | 数据集 | 5-way 1-shot | 5-way 5-shot |",
-        "| :--- | :--- | :--- | :--- |",
-    ]
-    md_lines.extend(f"| {m} | {d} | {a1} | {a5} |" for m, d, a1, a5 in rows)
-    (RESULT_DIR / "baseline_boost_summary.md").write_text(
-        "\n".join(md_lines) + "\n", encoding="utf-8"
-    )
-
-    print("\n".join(md_lines))
+    print("Wrote", RESULT_DIR / "baseline_boost_summary.csv")
 
 
 if __name__ == "__main__":

@@ -66,11 +66,12 @@ def load_open_clip(model_name, pretrained, device):
     return model, preprocess, f"open_clip:{model_name}:{pretrained}"
 
 
-def encode_open_clip_patch_tokens(model, images, normalize_tokens=False):
-    """Forward CLIP ViT and return final projected patch tokens.
+def encode_open_clip_patch_tokens(model, images, token_stage="post_proj", normalize_tokens=False):
+    """Forward CLIP ViT and return final patch tokens.
 
     open_clip exposes encode_image for pooled features, but FroFA needs the
-    token grid. This follows the ViT image tower internals for ViT-B/16.
+    token grid. ``post_ln`` keeps final tokens before CLIP projection and is
+    closer to the frozen patch feature setting used by FroFA.
     """
     visual = model.visual
     if not hasattr(visual, "conv1"):
@@ -94,12 +95,19 @@ def encode_open_clip_patch_tokens(model, images, normalize_tokens=False):
     x = x.permute(1, 0, 2)
     x = visual.transformer(x)
     x = x.permute(1, 0, 2)
-    x = visual.ln_post(x)
 
-    if getattr(visual, "proj", None) is not None:
+    if token_stage == "pre_ln":
+        patch_tokens = x[:, 1:, :]
+    else:
+        x = visual.ln_post(x)
+        patch_tokens = x[:, 1:, :]
+
+    if token_stage == "post_proj" and getattr(visual, "proj", None) is not None:
         x = x @ visual.proj
+        patch_tokens = x[:, 1:, :]
+    elif token_stage not in ("pre_ln", "post_ln", "post_proj"):
+        raise ValueError(f"Unsupported token_stage: {token_stage}")
 
-    patch_tokens = x[:, 1:, :]
     if normalize_tokens:
         patch_tokens = torch.nn.functional.normalize(patch_tokens.float(), dim=-1)
     return patch_tokens
@@ -123,7 +131,10 @@ def extract_split(args, model, preprocess, model_tag, split):
     for images, labels, class_names, image_names in loader:
         images = images.to(args.device, non_blocking=True)
         tokens = encode_open_clip_patch_tokens(
-            model, images, normalize_tokens=args.normalize_tokens
+            model,
+            images,
+            token_stage=args.token_stage,
+            normalize_tokens=args.normalize_tokens,
         )
         tokens = tokens.detach().cpu()
         if args.feature_dtype == "float16":
@@ -150,6 +161,7 @@ def extract_split(args, model, preprocess, model_tag, split):
         model_tag=np.asarray(model_tag),
         split=np.asarray(split),
         normalized=np.asarray(args.normalize_tokens),
+        token_stage=np.asarray(args.token_stage),
     )
     return output_path, tokens.shape, len(dataset.class_to_idx)
 
@@ -168,6 +180,12 @@ def parse_args():
         "--device", default="cuda" if torch.cuda.is_available() else "cpu"
     )
     parser.add_argument("--feature-dtype", choices=["float16", "float32"], default="float16")
+    parser.add_argument(
+        "--token-stage",
+        choices=["pre_ln", "post_ln", "post_proj"],
+        default="post_proj",
+        help="post_ln keeps final CLIP ViT tokens before projection and is closest to paper-style patch features.",
+    )
     parser.add_argument("--normalize-tokens", action="store_true")
     return parser.parse_args()
 
@@ -200,6 +218,7 @@ def main():
                 "model": model_tag,
                 "feature_dtype": args.feature_dtype,
                 "normalized": args.normalize_tokens,
+                "token_stage": args.token_stage,
                 "records": records,
             },
             indent=2,

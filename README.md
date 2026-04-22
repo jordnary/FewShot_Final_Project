@@ -2,8 +2,6 @@
 
 本项目围绕细粒度图像小样本分类展开，使用 LibFewShot 作为基础框架，在 CUB 数据集上建立 ProtoNet baseline，复现 Frozen Feature Augmentation for Few-Shot Image Classification (FroFA, CVPR 2024) 的核心思想，并进一步探索基于 CLIP frozen features 与 patch-token augmentation 的改进路线。
 
-项目目标不是只保存一次实验结果，而是形成一套可复查、可继续扩展的复现实验结构：从环境配置、数据准备、基线实验、论文复现、改进实验到最终报告，各阶段产物按目录隔离，便于他人阅读和复跑。
-
 ## Project Goals
 
 1. 在统一的 CUB few-shot classification 设置下跑通 LibFewShot 实验流程。

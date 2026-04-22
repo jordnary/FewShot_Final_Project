@@ -116,6 +116,16 @@ def frofa_augment_patch_tokens(tokens, num_aug, alpha, augmentations, generator)
                 aug01 = ((tokens01 - center) * factor.clamp_min(0.05) + center).clamp(
                     0.0, 1.0
                 )
+            elif aug_name == "posterize":
+                bits = torch.randint(
+                    3,
+                    7,
+                    (tokens01.size(0), 1, tokens01.size(2)),
+                    device=tokens.device,
+                    generator=generator,
+                )
+                bins = ((2.0 ** bits.float()) - 1.0).to(tokens.dtype)
+                aug01 = torch.round(tokens01 * bins) / bins
             else:
                 raise ValueError(f"Unsupported FroFA augmentation: {aug_name}")
             augmented.append(aug01 * scale + feat_min)
@@ -241,25 +251,13 @@ def write_results(rows, output_prefix):
     output_prefix = Path(output_prefix)
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     csv_path = output_prefix.with_suffix(".csv")
-    md_path = output_prefix.with_suffix(".md")
 
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
         writer.writerow(["method", "backbone", "head", "setting", "accuracy", "ci95"])
         writer.writerows(rows)
 
-    lines = [
-        "# CLIP patch-token FroFA + MAP-head results",
-        "",
-        "| Method | Backbone | Head | Setting | Accuracy | 95% CI |",
-        "|---|---|---|---|---:|---:|",
-    ]
-    for method, backbone, head, setting, accuracy, ci95 in rows:
-        lines.append(
-            f"| {method} | {backbone} | {head} | {setting} | {accuracy:.3f}% | +/- {ci95:.3f}% |"
-        )
-    md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return csv_path, md_path
+    return csv_path
 
 
 def parse_args():
@@ -298,7 +296,10 @@ def parse_args():
         help="Sample FroFA support tokens once per episode instead.",
     )
     parser.add_argument(
-        "--augmentations", nargs="+", default=["brightness"], choices=["brightness", "contrast"]
+        "--augmentations",
+        nargs="+",
+        default=["brightness"],
+        choices=["brightness", "contrast", "posterize"],
     )
     parser.add_argument("--seed", type=int, default=12)
     parser.add_argument("--normalize-tokens", action="store_true")
@@ -349,9 +350,8 @@ def main():
                 f"{method_name} {args.way}-way {shot}-shot: {mean:.3f}% +/- {ci95:.3f}%"
             )
 
-    csv_path, md_path = write_results(rows, args.output_prefix)
+    csv_path = write_results(rows, args.output_prefix)
     print(f"saved {csv_path}")
-    print(f"saved {md_path}")
 
 
 if __name__ == "__main__":

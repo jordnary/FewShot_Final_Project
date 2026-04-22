@@ -30,44 +30,6 @@ try:
 except ImportError:
     DCT_AVAILABLE = False
 
-    class _TorchDCTAdapter:
-        """Minimal torch-only DCT adapter used when torchjpeg is unavailable."""
-
-        def __init__(self):
-            self._basis_cache = {}
-
-        def _basis(self, size, device, dtype):
-            key = (size, device, dtype)
-            if key in self._basis_cache:
-                return self._basis_cache[key]
-
-            n = torch.arange(size, device=device, dtype=dtype)
-            k = torch.arange(size, device=device, dtype=dtype).unsqueeze(1)
-            basis = torch.cos(math.pi / size * (n + 0.5) * k)
-            basis[0, :] *= math.sqrt(1.0 / size)
-            if size > 1:
-                basis[1:, :] *= math.sqrt(2.0 / size)
-            self._basis_cache[key] = basis
-            return basis
-
-        def images_to_batch(self, images):
-            height, width = images.shape[-2:]
-            basis_h = self._basis(height, images.device, images.dtype)
-            basis_w = self._basis(width, images.device, images.dtype)
-            coeffs = torch.matmul(basis_h, images)
-            coeffs = torch.matmul(coeffs, basis_w.transpose(-1, -2))
-            return coeffs
-
-        def batch_to_images(self, coeffs):
-            height, width = coeffs.shape[-2:]
-            basis_h = self._basis(height, coeffs.device, coeffs.dtype)
-            basis_w = self._basis(width, coeffs.device, coeffs.dtype)
-            images = torch.matmul(basis_h.transpose(-1, -2), coeffs)
-            images = torch.matmul(images, basis_w)
-            return images
-
-    dctt = _TorchDCTAdapter()
-
 from core.utils import accuracy
 from .metric_model import MetricModel
 
@@ -261,9 +223,7 @@ class GAINModel(MetricModel):
         super(GAINModel, self).__init__(**kwargs)
 
         # Device management
-        self.device = kwargs.get(
-            "device", torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        )
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         print(f"FGFL Model will use device: {self.device}")
 
         # Model architecture setup

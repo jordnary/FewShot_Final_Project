@@ -53,6 +53,19 @@ def run_rows(token_file, args, stage, configs):
     baseline_cache = {}
 
     for index, config in enumerate(configs):
+        print(
+            "[{}] config {}/{}: alpha={}, num_aug={}, aug={}, steps={}, wd={}".format(
+                stage,
+                index + 1,
+                len(configs),
+                config["alpha"],
+                config["num_aug"],
+                "+".join(config["augmentations"]),
+                config["train_steps"],
+                config["weight_decay"],
+            ),
+            flush=True,
+        )
         cfg_args = copy.copy(args)
         cfg_args.alpha = config["alpha"]
         cfg_args.num_aug = config["num_aug"]
@@ -85,6 +98,12 @@ def run_rows(token_file, args, stage, configs):
                     "frofa_ci95": frofa_ci,
                     "gain": frofa_mean - map_mean,
                 }
+            )
+            print(
+                "[{}] shot {} done: MAP {:.3f}, FroFA {:.3f}, gain {:+.3f}".format(
+                    stage, shot, map_mean, frofa_mean, frofa_mean - map_mean
+                ),
+                flush=True,
             )
     return rows
 
@@ -215,7 +234,7 @@ def main():
         "train_steps": best_key[3],
         "weight_decay": best_key[4],
     }
-    print(f"Best validation config by {args.select_by}: {best_config}")
+    print(f"Best validation config by {args.select_by}: {best_config}", flush=True)
 
     rows = list(val_rows)
     if args.test_token_file:
@@ -224,9 +243,9 @@ def main():
         rows.extend(run_rows(args.test_token_file, test_args, "test", [best_config]))
 
     csv_path, md_path = write_rows(rows, args.output_prefix, write_md=not args.no_md)
-    print(f"saved {csv_path}")
+    print(f"saved {csv_path}", flush=True)
     if not args.no_md:
-        print(f"saved {md_path}")
+        print(f"saved {md_path}", flush=True)
 
 
 if __name__ == "__main__":

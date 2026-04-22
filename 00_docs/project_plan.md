@@ -1,162 +1,242 @@
 # 小样本学习项目计划
 
-## 当前路线确认
+## 总体目标
 
-- 项目方向：小样本学习。
-- 框架：LibFewShot。
-- 数据集：CUB。
-- baseline：ProtoNet。
-- 复现目标：复现一篇 2023-2026 年顶会小样本学习论文。
-- 阶段 1 完成标准：`ml` 环境能运行 PyTorch。
-- 当前环境结论：`ml` 环境 Python 3.12.13，PyTorch 2.11.0+cu130，`torch.cuda.is_available()` 为 `True`。
-- 阶段 2-4 当前状态：LibFewShot 已下载，CUB 数据集已整理，ProtoNet baseline 已完成正式 CUB 运行；早期 synthetic sanity 验证产物已清理。
+1. 理解小样本学习的基本问题设定、常见训练范式和评估方式。
+2. 熟悉 LibFewShot 的代码结构、配置方式和模型接入方式。
+3. 建立一个可复查的 baseline 实验流程。
+4. 选择一篇较新的小样本学习论文作为主复现对象。
+5. 将论文核心方法改写为项目内可运行的模块。
+6. 设计必要的对比实验和消融实验，分析方法是否有效以及在什么条件下有效。
+7. 整理代码、说明文档、实验记录和最终报告。
 
-## 1. 项目目标
+## 阶段 1：基础概念与框架熟悉
 
-复现 1-2 种 LibFewShot 中没有的小样本学习算法，并在统一实验设置下提交：
+本阶段目标是为后续实验建立必要背景。
 
-- 可运行代码和配置文件。
-- 实验思路与复现结果 PDF。
-- 展示材料。
-- 若代码质量和接口匹配度足够，尝试向 LibFewShot 提交贡献。
+主要任务：
 
-顶会范围：ICLR、CVPR、ICCV、ECCV、ICML、NeurIPS，年份范围：2023-2026。
+- 梳理 few-shot classification 的基本设定，包括 way、shot、query、support set、query set 和 episode。
+- 理解 metric-based、optimization-based、fine-tuning-based 等常见方法类别。
+- 阅读 LibFewShot 的目录结构，明确配置文件、模型定义、backbone、trainer、tester 和日志模块之间的关系。
+- 选择一个简单模型作为框架理解入口，重点关注信息流、特征提取、类别原型或分类头计算过程。
+- 建立项目目录规范，区分环境配置、框架代码、baseline、论文复现、改进实验和报告材料。
 
-## 2. 推荐技术路线
+阶段产出：
 
-优先选择“标准 few-shot image classification / cross-domain few-shot classification”方向，因为它与 LibFewShot 的任务形态最接近，复现、比较和贡献成本最低。
+- 环境配置说明。
+- 框架结构阅读笔记。
+- 项目目录说明。
+- 初步实验记录模板。
 
-建议主线：
+## 阶段 2：Baseline 流程设计
 
-1. 环境与框架跑通：安装 LibFewShot，完成 miniImageNet 或 CUB 的一次 baseline 训练/测试。
-2. 基线复现实验：至少运行 ProtoNet、RelationNet、RFS 或 Baseline++ 中的 2-3 个，确认数据、日志和评估流程可靠。
-3. 论文选择：从 2023-2024 的 CVPR/ICCV 方法中选 1 个主复现、1 个备选复现。
-4. 方法接入：优先实现为 LibFewShot classifier 或 wrapper，保持配置文件、日志和评估接口统一。
-5. 结果对齐：复现原论文主要表格中的 5-way 1-shot / 5-way 5-shot，记录均值和置信区间。
-6. 消融分析：至少做 2-3 组关键模块消融，例如是否使用频域增强、语义辅助、特征增强、跨域适配等。
-7. 报告整理：说明任务设定、论文方法、实现差异、实验设置、结果表格、失败原因和改进方向。
+本阶段目标是建立后续所有实验的参照对象。
 
-## 3. 候选论文优先级
+主要任务：
 
-### A. Frequency Guidance Matters in Few-Shot Learning, ICCV 2023
+- 选择一个经典 baseline 方法作为主对照。
+- 明确 baseline 的输入、输出、训练流程和测试流程。
+- 按项目目录单独保存 baseline 配置、运行脚本和说明文档。
+- 设计统一的日志命名方式，确保每次运行都能追溯到具体配置。
+- 设计指标汇总脚本，用于从日志或输出文件中提取关键指标。
+- 保持 baseline 尽量简单稳定，避免在主对照中加入额外技巧。
 
-推荐程度：高。
+阶段产出：
 
-优点：
+- baseline 配置文件。
+- baseline 运行脚本。
+- baseline 指标汇总脚本。
+- baseline 阶段说明文档。
 
-- 属于标准 few-shot classification，和 LibFewShot 任务匹配。
-- 方法核心是频域引导、mask、metric learning，便于做模块化实现。
-- 可在 miniImageNet、CUB 等常见数据集上比较。
+## 阶段 3：论文筛选与复现范围确定
 
-风险：
+本阶段目标是确定主复现论文，并限定可完成的复现范围。
 
-- 频域处理和多级损失需要仔细对齐原论文实现。
-- 训练成本中等，可能需要先做简化版本。
+论文选择原则：
 
-### B. Frozen Feature Augmentation for Few-Shot Image Classification, CVPR 2024
+- 方法与项目框架的任务形式一致。
+- 核心思想可以拆解为可实现模块。
+- 复现所需资源在项目条件内可控。
+- 原论文有清晰的实验协议和消融设计。
+- 方法适合作为 baseline 的直接对比对象。
 
-推荐程度：高，尤其适合作为第二个方法或轻量复现。
+优先考虑方向：
 
-优点：
+- 基于特征增强的小样本学习方法。
+- 基于预训练特征的小样本学习方法。
+- 与 metric-based pipeline 兼容的方法。
+- 可以通过 wrapper 或 classifier 模块接入现有框架的方法。
 
-- 思路简单：在 frozen feature space 做 augmentation。
-- 对算力友好，适合先复现小规模结果。
-- 很适合做消融：不同 feature augmentation、不同 backbone、不同 shot。
+阶段产出：
 
-风险：
+- 论文阅读笔记。
+- 主复现论文选择说明。
+- 复现范围说明。
+- 原方法模块拆解。
+- 与项目框架的接口对应关系。
 
-- 如果完全依赖大规模预训练特征，和 LibFewShot 原有训练流程可能需要 adapter。
+## 阶段 4：论文方法接入
 
-### C. Discriminative Sample-Guided and Parameter-Efficient Feature Space Adaptation, CVPR 2024
+本阶段目标是将论文核心方法实现为项目中的可运行模块。
 
-推荐程度：中高。
+主要任务：
 
-优点：
+- 根据论文方法拆分核心组件，例如特征处理、增强策略、分类头、损失函数或推理逻辑。
+- 优先沿用 LibFewShot 现有模型接口，减少对 trainer 和 tester 的侵入式修改。
+- 为新方法建立独立配置文件，避免污染 baseline 配置。
+- 保留关键超参数的配置入口，方便后续消融。
+- 编写最小运行脚本，用于快速验证方法能否完整执行。
+- 检查训练与测试阶段的行为是否符合论文描述。
 
-- 聚焦 cross-domain few-shot learning，方向较新。
-- 参数高效适配容易形成清晰实验故事。
+阶段产出：
 
-风险：
+- 新方法模型文件。
+- 新方法配置文件。
+- 新方法运行脚本。
+- 方法接入说明。
+- 与原论文实现差异说明。
 
-- Meta-Dataset 相关设置可能比 miniImageNet/CUB 更重。
-- 与 LibFewShot 标准数据格式可能有额外适配成本。
+## 阶段 5：正式对比实验规划
 
-### D. Simple Semantic-Aided Few-Shot Learning, CVPR 2024
+本阶段目标是设计主实验，让 baseline 与复现方法可以在统一设置下比较。
 
-推荐程度：中。
+主要任务：
 
-优点：
+- 统一 baseline 与复现方法的评估协议。
+- 固定主要实验设置，减少无关变量影响。
+- 设计可重复运行的命令入口。
+- 规定每次实验需要保存的日志、配置和汇总文件。
+- 使用相同格式记录所有方法的最终指标。
+- 在报告中明确哪些设置来自原论文，哪些设置是项目内简化或调整。
 
-- 视觉特征 + 语义原型，方法故事清楚。
-- 可作为多模态/语义辅助方向的亮点。
+阶段产出：
 
-风险：
+- 主实验运行说明。
+- 主实验配置清单。
+- 主实验指标表模板。
+- 实验差异说明模板。
 
-- 需要生成或准备高质量类别语义。
-- 依赖外部语义资源时，复现可控性下降。
+## 阶段 6：消融实验规划
 
-## 4. 最小可交付版本
+本阶段目标是分析方法内部组件的作用，而不是只给出最终对比。
 
-如果时间紧，建议交付：
+可选消融方向：
 
-- 1 个主方法完整复现：FGFL 或 FroFA。
-- 2-3 个 LibFewShot 原生基线。
-- miniImageNet 和 CUB 中至少 1 个数据集的完整结果。
-- 5-way 1-shot / 5-way 5-shot 两个设置。
-- 1 页方法图或流程图。
-- 1 张主结果表 + 1 张消融表。
+- 是否启用核心增强模块。
+- 不同增强强度。
+- 不同增强数量。
+- 不同特征层或特征形式。
+- 不同分类头或推理策略。
+- 是否冻结特征提取器。
+- 是否使用成对 episode 对比。
 
-## 5. 周期安排
+消融设计原则：
 
-第 1 周：
+- 每组消融只改变一个主要因素。
+- 优先分析最影响方法结论的模块。
+- 消融数量控制在报告可以清楚解释的范围内。
+- 对失败或负向现象同样保留记录。
 
-- 补齐 PyTorch、深度学习、few-shot 基础概念。
-- 配置 LibFewShot 环境，下载 miniImageNet/CUB。
-- 跑通一个官方 baseline。
+阶段产出：
 
-第 2 周：
+- 消融实验配置。
+- 消融运行脚本。
+- 消融指标表模板。
+- 消融分析提纲。
 
-- 阅读 3-5 篇候选论文，确定主复现论文。
-- 复现实验协议：way、shot、query、episode 数、backbone、输入尺寸、优化器。
-- 建立实验记录模板。
+## 阶段 7：改进实验规划
 
-第 3-4 周：
+本阶段目标是在完成论文复现后，提出一个与论文思想相关、实现范围可控的改进方向。
 
-- 接入主方法代码。
-- 跑小规模 sanity check。
-- 跑正式 1-shot / 5-shot 实验。
+改进设计原则：
 
-第 5 周：
+- 改进应围绕主复现方法展开，而不是切换到完全无关的新方法。
+- 改进点应能通过对比实验验证。
+- 改进实现应尽量复用已有代码和配置结构。
+- 改进实验需要有明确假设，例如增强位置、特征形式、分类头或正则化方式可能影响效果。
 
-- 做消融实验。
-- 与原论文和 LibFewShot baseline 比较。
-- 分析误差来源。
+可选改进方向：
 
-第 6 周：
+- 更换或增强特征表示。
+- 调整增强发生的位置。
+- 改进分类头训练方式。
+- 引入更稳定的超参数选择流程。
+- 使用更严格的 paired comparison 降低评估噪声。
 
-- 整理代码、报告 PDF 和展示材料。
-- 按 LibFewShot 风格清理接口、配置和 README。
+阶段产出：
 
-## 6. 实验记录规范
+- 改进动机说明。
+- 改进方法设计。
+- 改进实验配置。
+- 改进分析提纲。
+
+## 阶段 8：文档与报告整理
+
+本阶段目标是把项目整理成可阅读、可复查、可展示的成果。
+
+报告结构建议：
+
+1. 研究背景与任务介绍。
+2. baseline 方法与实验流程。
+3. 主复现论文的方法概述。
+4. 项目中的方法实现。
+5. 主实验设计。
+6. 消融实验设计。
+7. 改进实验设计。
+8. 实验现象与原因分析。
+9. 局限性与后续工作。
+10. 总结。
+
+配套材料：
+
+- 项目 README。
+- 环境配置说明。
+- 各阶段运行指南。
+- 项目结构说明。
+- 论文阅读笔记。
+- 实验记录表。
+- 最终展示材料。
+
+## 阶段 9：代码清理与复查
+
+本阶段目标是确保项目交付物清晰、稳定、便于检查。
+
+主要任务：
+
+- 检查配置文件命名是否清楚。
+- 检查脚本入口是否可以按文档运行。
+- 检查指标汇总脚本是否与日志格式一致。
+- 删除临时调试文件和无关输出。
+- 确认大文件、本地缓存和中间产物不会进入版本管理。
+- 确认 README 能引导他人理解项目路线。
+- 确认报告中的实验设置与代码配置一致。
+
+阶段产出：
+
+- 清理后的代码目录。
+- 完整 README。
+- 各阶段说明文档。
+- 最终报告和展示材料。
+
+## 实验记录规范
 
 每次实验至少记录：
 
-- 论文/方法名。
-- commit hash 或代码版本。
-- 数据集和划分。
-- backbone、输入尺寸、预训练设置。
-- way/shot/query/episode。
-- batch size、optimizer、learning rate、scheduler。
-- seed。
-- 平均准确率和 95% confidence interval。
-- 日志路径和模型权重路径。
-- 与原论文设置的差异。
+- 方法名称。
+- 实验目的。
+- 配置文件路径。
+- 运行脚本路径。
+- 关键超参数。
+- 随机种子。
+- 日志路径。
+- 汇总文件路径。
+- 与标准设置的差异。
+- 观察到的主要现象。
+- 后续需要检查的问题。
 
-## 7. 参考资料
+## 参考资料
 
-- LibFewShot documentation: https://libfewshot-en.readthedocs.io/
-- LibFewShot paper: https://arxiv.org/abs/2109.04898
-- FGFL, ICCV 2023: https://openaccess.thecvf.com/content/ICCV2023/html/Cheng_Frequency_Guidance_Matters_in_Few-Shot_Learning_ICCV_2023_paper.html
-- FroFA, CVPR 2024: https://openaccess.thecvf.com/content/CVPR2024/html/Bar_Frozen_Feature_Augmentation_for_Few-Shot_Image_Classification_CVPR_2024_paper.html
-- DIPA, CVPR 2024: https://openaccess.thecvf.com/content/CVPR2024/html/Perera_Discriminative_Sample-Guided_and_Parameter-Efficient_Feature_Space_Adaptation_for_Cross-Domain_Few-Shot_CVPR_2024_paper.html
-- SemFew, CVPR 2024: https://openaccess.thecvf.com/content/CVPR2024/html/Zhang_Simple_Semantic-Aided_Few-Shot_Learning_CVPR_2024_paper.html
+- LibFewShot documentation: <https://libfewshot-en.readthedocs.io/>
+- LibFewShot paper: <https://arxiv.org/abs/2109.04898>
+- FroFA, CVPR 2024: <https://openaccess.thecvf.com/content/CVPR2024/html/Bar_Frozen_Feature_Augmentation_for_Few-Shot_Image_Classification_CVPR_2024_paper.html>

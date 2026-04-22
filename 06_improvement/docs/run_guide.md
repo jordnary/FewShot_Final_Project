@@ -138,6 +138,24 @@ bash 06_improvement/run_patch_frofa_paperlike_cloud.sh
 
 云端 paperlike 脚本默认带 `--no-md`，只保存 `.csv` 和 `.log`。
 
+当前 paperlike 结果中，validation sweep 选出的最佳配置是：
+
+```text
+alpha: 0.30
+num_aug: 8
+augmentation: brightness
+train_steps: 40
+weight_decay: 0.01
+```
+
+对应 test split 结果：
+
+| Method | 5-way 1-shot | 5-way 5-shot |
+| :--- | ---: | ---: |
+| MAP | 42.187 +/- 0.816 | 68.878 +/- 0.884 |
+| FroFA + MAP | 43.960 +/- 0.854 | 72.893 +/- 0.833 |
+| Gain | +1.773 | +4.016 |
+
 ## Global Feature Linear Probe
 
 如果要复现 global CLIP feature + linear probe 消融，先提取 global features：
@@ -212,8 +230,8 @@ python 06_improvement/run_frofa_map_eval.py \
 ```text
 06_improvement/results/clip_vit_b16_frofa_linear_cub.csv
 06_improvement/results/clip_vit_b16_patch_frofa_map_cub_paired.csv
-06_improvement/results/final_stage6_summary.csv
 06_improvement/results/clip_vit_b16_postln_patch_frofa_map_sweep.csv
+06_improvement/results/final_stage6_summary.csv
 ```
 
 `results/features/` 下的 `.npz` 是可复用特征缓存，文件较大，通常作为本地或云端运行产物保留。

@@ -3,3 +3,5 @@ Global CLIP feature,no-FroFA linear probe,86.975,0.569,96.379,0.248,Strong froze
 Global CLIP feature,FroFA linear probe,85.717,0.574,95.733,0.295,Pooled embedding FroFA hurts
 Patch-token paired,MAP,46.213,0.875,75.478,0.765,Patch-token MAP baseline
 Patch-token paired,FroFA + MAP,45.402,0.890,77.056,0.819,FroFA improves 5-shot by +1.578
+Paperlike post-LN val sweep,MAP,42.187,0.816,68.878,0.884,Validation-selected test baseline
+Paperlike post-LN val sweep,FroFA + MAP,43.960,0.854,72.893,0.833,FroFA improves 1-shot by +1.773 and 5-shot by +4.016

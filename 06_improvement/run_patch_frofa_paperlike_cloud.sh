@@ -46,5 +46,6 @@ PYTHONUNBUFFERED=1 python -u 06_improvement/run_frofa_map_sweep.py \
   --train-steps-grid 40 \
   --weight-decays 0.01 \
   --select-by mean_gain \
+  --log-interval 20 \
   --no-md \
   2>&1 | tee 06_improvement/logs/clip_vit_b16_postln_patch_frofa_map_sweep.log

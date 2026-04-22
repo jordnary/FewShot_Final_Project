@@ -1,0 +1,2 @@
+category,method,dataset,backbone,train_setting,test_episodes,5-way 1-shot,5-way 5-shot,configs,logs,result_dirs
+cloud formal baseline,ProtoNet,CUB,Conv64F,"100 epochs; 1000 train episodes/epoch",600,36.249%,69.584%,"proto_cub_conv64f_formal_5way_1shot_cloud.yaml; proto_cub_conv64f_formal_5way_5shot_cloud.yaml","proto_cub_conv64f_formal_5way_1shot_cloud_console.log; proto_cub_conv64f_formal_5way_5shot_cloud_console.log","proto_cub_conv64f_formal_5way_1shot_cloud; proto_cub_conv64f_formal_5way_5shot_cloud"

@@ -7,22 +7,21 @@
 ```text
 04_baseline_experiments/
 ├─ configs/   实验配置文件
-├─ logs/      控制台运行日志
-├─ results/   LibFewShot 输出、模型权重、汇总表
-├─ figures/   预留图表目录
+├─ logs/      云端控制台日志，本地保留但不纳入 Git
+├─ results/   结果汇总纳入 Git；逐次 run 输出和 checkpoint 本地保留
 ├─ *_RUN.md   云端运行说明
 └─ run_*.py / run_*.sh / run_*.ps1 运行脚本
 ```
 
-本目录已下载并保留云端完整输出。核心可引用文件如下：
+核心可引用文件如下：
 
 - 结果总表：`results/summary_all.md`
 - 结果总表 CSV：`results/summary_all.csv`
 - 快速 baseline 汇总：`results/summary_quick_baseline.md`
 - Conv64F 云端正式 baseline 汇总：`results/summary_conv64f_formal_cloud.md`
 - ResNet12 云端增强 baseline 汇总：`results/summary_resnet12_boost_cloud.md`
-- 云端控制台日志：`logs/*_cloud_console.log`
-- 最优模型权重：各实验目录下的 `checkpoints/model_best.pth` 与 `checkpoints/emb_func_best.pth`
+- 云端控制台日志：`logs/*_cloud_console.log`（本地训练产物）
+- 最优模型权重：各实验目录下的 `checkpoints/model_best.pth` 与 `checkpoints/emb_func_best.pth`（本地训练产物）
 
 ## 实验结果
 

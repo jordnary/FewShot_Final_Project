@@ -1,0 +1,2 @@
+category,method,dataset,backbone,train_setting,test_episodes,5-way 1-shot,5-way 5-shot,configs,logs,result_dirs
+cloud boosted baseline,ProtoNet,CUB,ResNet12,"120 epochs; 2000 train episodes/epoch",1000,73.376%,85.945%,"proto_cub_resnet12_boost_5way_1shot_cloud.yaml; proto_cub_resnet12_boost_5way_5shot_cloud.yaml","proto_cub_resnet12_boost_5way_1shot_cloud_console.log; proto_cub_resnet12_boost_5way_5shot_cloud_console.log","proto_cub_resnet12_boost_5way_1shot_cloud; proto_cub_resnet12_boost_5way_5shot_cloud"

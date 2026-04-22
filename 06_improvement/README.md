@@ -7,9 +7,9 @@
 ```text
 CUB images
 -> pretrained CLIP ViT-B/16 frozen encoder
--> offline feature cache
--> no-FroFA linear classifier
--> FroFA augmented features + linear classifier
+-> offline patch-token cache
+-> no-FroFA MAP head
+-> FroFA augmented patch tokens + MAP head
 -> compare 5-way 1-shot / 5-shot
 ```
 
@@ -19,15 +19,17 @@ CUB images
 
 - `extract_clip_features.py`：冻结 CLIP ViT-B/16，读取 `03_datasets/CUB_200_2011/{train,val,test}.csv`，离线提取并保存特征。
 - `run_frofa_linear_eval.py`：在缓存特征上采样 episode，比较 no-FroFA 与 FroFA 的闭式 L2 linear probe。
+- `extract_clip_patch_tokens.py`：冻结 CLIP ViT-B/16，离线提取最终层 patch tokens，默认输出 test split。
+- `run_frofa_map_eval.py`：在 patch tokens 上按 episode 训练 MAP head，对比 no-FroFA MAP 与 FroFA + MAP。
 - `run_clip_frofa_cub_cloud.sh`：云端一键运行特征提取和 5-way 1-shot / 5-shot 对比。
 - `ablation_study.md`：个人思考、改进动机、预期结果和报告可用分析。
 
 ## 依赖
 
-推荐安装 `open_clip_torch`：
+统一依赖放在 `01_environment/requirements.txt`，其中已经包含 `open_clip_torch`、`torch` 和 `torchvision`：
 
 ```bash
-pip install open_clip_torch
+pip install -r 01_environment/requirements.txt
 ```
 
 云端脚本默认使用 `open_clip` 后端，并设置 HuggingFace 镜像，避免直接访问 HuggingFace 失败：
@@ -74,18 +76,19 @@ bash 06_improvement/run_clip_frofa_cub_cloud.sh
 输出文件：
 
 ```text
-06_improvement/results/features/cub_train_clip_vit_b16.npz
-06_improvement/results/features/cub_val_clip_vit_b16.npz
-06_improvement/results/features/cub_test_clip_vit_b16.npz
-06_improvement/results/clip_vit_b16_frofa_linear_cub.md
-06_improvement/results/clip_vit_b16_frofa_linear_cub.csv
+06_improvement/results/features/cub_test_clip_vit_b16_patch_tokens.npz
+06_improvement/results/clip_vit_b16_patch_frofa_map_cub.md
+06_improvement/results/clip_vit_b16_patch_frofa_map_cub.csv
+06_improvement/results/final_stage6_summary.md
 ```
 
-## 报告中的预期表格
+`results/features/` 中的 `.npz` 是可复用特征缓存，属于本地训练产物，不纳入 Git；`results/*.md` 和 `results/*.csv` 是可跟踪的结果汇总。
 
-| 方法 | Frozen encoder | Classifier | 5-way 1-shot | 5-way 5-shot |
+## 报告中的结果表格
+
+| 方法 | Frozen encoder | Head | 5-way 1-shot | 5-way 5-shot |
 |---|---|---|---:|---:|
-| no-FroFA | CLIP ViT-B/16 | L2 linear probe | 待运行 | 待运行 |
-| FroFA | CLIP ViT-B/16 | L2 linear probe | 待运行 | 待运行 |
+| MAP | CLIP ViT-B/16 patch tokens | episode-trained MAP head | 46.213 +/- 0.875 | 75.478 +/- 0.765 |
+| FroFA + MAP | CLIP ViT-B/16 patch tokens | episode-trained MAP head | 45.402 +/- 0.890 | 77.056 +/- 0.819 |
 
-如果 FroFA 路线有效，预期 1-shot 的提升应比 5-shot 更明显；如果 5-shot 提升很小，也符合论文中“样本越少收益越大”的趋势。
+当前结论：FroFA + MAP 在 5-shot 上有提升，但 1-shot 仍需调参；最终解释以 `results/final_stage6_summary.md` 为准。

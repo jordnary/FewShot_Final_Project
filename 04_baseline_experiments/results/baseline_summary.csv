@@ -1,0 +1,2 @@
+method,dataset,5-way 1-shot,5-way 5-shot
+ProtoNet,CUB,24.13%,37.41%

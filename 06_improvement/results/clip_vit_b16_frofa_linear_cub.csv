@@ -1,0 +1,5 @@
+method,backbone,classifier,setting,accuracy,ci95
+no-FroFA,CLIP ViT-B/16,closed-form L2 linear probe,5-way 1-shot,86.97466883957387,0.5692454829656696
+FroFA,CLIP ViT-B/16,closed-form L2 linear probe,5-way 1-shot,85.71733539104461,0.5737636437996853
+no-FroFA,CLIP ViT-B/16,closed-form L2 linear probe,5-way 5-shot,96.37866851687431,0.24784453847743596
+FroFA,CLIP ViT-B/16,closed-form L2 linear probe,5-way 5-shot,95.73333523273467,0.2952808115341352

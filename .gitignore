@@ -3,39 +3,119 @@
 Thumbs.db
 .idea/
 .vscode/
+.spyderproject
+.spyproject
+.ropeproject
 
-# Python
+# Python bytecode / native extensions
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+
+# Python tooling / caches
 .pytest_cache/
 .mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
 .ruff_cache/
+.tox/
+.nox/
+.cache/
+.hypothesis/
 .coverage
+.coverage.*
+*.cover
+*.py,cover
 htmlcov/
+nosetests.xml
+coverage.xml
 
 # Environments
 .env
 .venv/
+.venv
 venv/
 env/
 ENV/
+env.bak/
+venv.bak/
 01_environment/.venv/
+.python-version
+__pypackages__/
 
-# Jupyter
+# Jupyter / IPython
 .ipynb_checkpoints/
+profile_default/
+ipython_config.py
 
-# Build artifacts
+# Build / packaging artifacts
 build/
 dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
+.installed.cfg
+*.egg
+.Python
+MANIFEST
+*.manifest
+*.spec
 
-# Datasets and generated experiment artifacts
-03_datasets/
-04_baseline_experiments/results/
-05_paper_reproduction/results/
-06_improvement/results/
-02_libfewshot/LibFewShot/results/
+# Framework / docs / tool artifacts
+*.mo
+*.pot
+docs/_build/
+target/
+site/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache/
+.scrapy/
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+
+# Datasets and local report artifacts
+03_datasets/**
+!03_datasets/
+!03_datasets/.gitkeep
+
+07_report/**
+!07_report/
+!07_report/.gitkeep
+
+04_baseline_experiments/results/*
+!04_baseline_experiments/results/
+!04_baseline_experiments/results/*.md
+!04_baseline_experiments/results/*.csv
+
+05_paper_reproduction/results/*
+!05_paper_reproduction/results/
+!05_paper_reproduction/results/*.md
+!05_paper_reproduction/results/*.csv
+
+06_improvement/results/*
+!06_improvement/results/
+!06_improvement/results/*.md
+!06_improvement/results/*.csv
+
+02_libfewshot/LibFewShot/results/*
+!02_libfewshot/LibFewShot/results/
+!02_libfewshot/LibFewShot/results/README.md
 
 # Model checkpoints / large binary artifacts
 *.ckpt
@@ -46,12 +126,16 @@ dist/
 *.npy
 *.npz
 *.t7
+*.safetensors
+06_improvement/pretrained/
 
 # Logs and temporary files
 *.log
 logs/
 tmp/
 temp/
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Nested upstream clone metadata; track source files in this project repo instead.
 02_libfewshot/LibFewShot/.git/

@@ -46,3 +46,5 @@ python 06_improvement/run_frofa_map_eval.py \
   --map-queries 1 \
   --alpha 0.20 \
   --num-aug 8 \
+  --augmentations brightness \
+  2>&1 | tee 06_improvement/logs/clip_vit_b16_patch_frofa_map_eval.log

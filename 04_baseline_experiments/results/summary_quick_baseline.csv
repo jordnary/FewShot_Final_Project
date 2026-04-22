@@ -1,0 +1,2 @@
+category,method,dataset,backbone,train_setting,test_episodes,5-way 1-shot,5-way 5-shot,configs,logs,result_dirs
+quick baseline,ProtoNet,CUB,Conv64F,"10 epochs; 100 train episodes/epoch",100,24.133%,37.413%,"proto_cub_5way_1shot.yaml; proto_cub_5way_5shot.yaml","proto_cub_5way_1shot_console.log; proto_cub_5way_5shot_console.log","proto_cub_5way_1shot; proto_cub_5way_5shot"

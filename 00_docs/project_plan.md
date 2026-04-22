@@ -9,7 +9,7 @@
 - 复现目标：复现一篇 2023-2026 年顶会小样本学习论文。
 - 阶段 1 完成标准：`ml` 环境能运行 PyTorch。
 - 当前环境结论：`ml` 环境 Python 3.12.13，PyTorch 2.11.0+cu130，`torch.cuda.is_available()` 为 `True`。
-- 阶段 2 当前状态：LibFewShot 已下载，ProtoNet 已在 synthetic sanity 数据上跑出 loss / accuracy；真实 CUB baseline 需要后续准备 CUB 数据。
+- 阶段 2-4 当前状态：LibFewShot 已下载，CUB 数据集已整理，ProtoNet baseline 已完成正式 CUB 运行；早期 synthetic sanity 验证产物已清理。
 
 ## 1. 项目目标
 

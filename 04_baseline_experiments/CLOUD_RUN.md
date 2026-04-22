@@ -18,8 +18,8 @@ FewShot_Final_Project/
 ## 安装依赖
 
 ```bash
-cd FewShot_Final_Project/02_libfewshot/LibFewShot
-pip install -r requirements.txt
+cd FewShot_Final_Project
+pip install -r 01_environment/requirements.txt
 ```
 
 检查 GPU：

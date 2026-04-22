@@ -1,59 +1,55 @@
-# 阶段 1：环境确认记录
+# 环境安装说明
 
-日期：2026-04-20  
-工作目录：`D:\Codes\Python\Machine_Learning\FewShot_Final_Project`
+本文件用于说明如何为项目创建 Python 环境并安装依赖。项目依赖统一维护在 `01_environment/requirements.txt` 中，其他目录不再单独保存依赖清单。
 
-## Conda / Python
+## 基础要求
 
-使用 PowerShell 函数 `cda` 初始化 Miniconda：
+- 建议使用 Conda 或 Miniconda 管理 Python 环境。
+- 建议使用 Python 3.10 及以上版本；如果没有特殊兼容性要求，可以使用 Python 3.12。
+- 如需运行 GPU 训练或 CLIP 特征提取，建议使用带 NVIDIA GPU 的环境，并安装与本机 CUDA 驱动匹配的 PyTorch。
 
-```powershell
-cda
-conda activate ml
-python --version
+## 创建环境
+
+下面的环境名 `fewshot` 仅作示例，可以根据需要自行修改：
+
+```bash
+conda create -n fewshot python=3.12 -y
+conda activate fewshot
 ```
 
-结果：
+## 安装依赖
 
-```text
-Miniconda Initialized!
-Python 3.12.13
+在项目根目录执行：
+
+```bash
+pip install -r 01_environment/requirements.txt
 ```
 
-备注：每次启动 PowerShell 时会出现 `oh-my-posh` init script 写入失败：
+如果需要指定 CUDA 版本，建议先根据 PyTorch 官方安装页面安装匹配的 `torch` 和 `torchvision`，再安装本项目其余依赖。
 
-```text
-Failed to write init script: open C:\Users\jordn\AppData\Local\oh-my-posh\init...ps1: Access is denied.
-```
+## 依赖包说明
 
-该提示未阻止 `cda` 初始化 Miniconda，也未阻止 `ml` 环境运行 Python。
+- `numpy`：数组计算和特征数据处理的基础库。
+- `pandas`：读取、整理和导出实验结果表格。
+- `scipy`：科学计算工具，部分评估和统计处理会用到。
+- `scikit-learn`：传统机器学习工具库，用于指标计算或简单分类评估。
+- `matplotlib`：绘制结果图表。
+- `Pillow`：图像读取和预处理。
+- `PyYAML`：读取 YAML 配置文件。
+- `einops`：简洁地重排张量维度。
+- `future`：兼容部分旧式 Python 代码依赖。
+- `rich`：更友好的命令行输出。
+- `tensorboard`：记录和查看训练过程指标。
+- `torch`：PyTorch 深度学习框架。
+- `torchvision`：PyTorch 图像模型、数据处理和视觉工具。
+- `open_clip_torch`：加载 OpenCLIP 模型，用于 CLIP 相关特征提取实验。
 
-## PyTorch / CUDA
+## 验证安装
 
-原始命令：
+安装完成后，可以用下面的命令确认 PyTorch 是否可用：
 
-```powershell
+```bash
 python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
 ```
 
-首次运行报错：
-
-```text
-OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized.
-```
-
-临时验证命令：
-
-```powershell
-$env:KMP_DUPLICATE_LIB_OK='TRUE'
-python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-```
-
-结果：
-
-```text
-2.11.0+cu130
-True
-```
-
-结论：`ml` 环境可以运行 PyTorch，且 CUDA 可用。OpenMP 重复加载问题需要后续清理依赖来源；当前可用 `KMP_DUPLICATE_LIB_OK=TRUE` 作为临时 workaround。
+如果输出的第二项为 `True`，表示当前环境可以使用 CUDA；如果为 `False`，表示当前 PyTorch 环境只能使用 CPU。

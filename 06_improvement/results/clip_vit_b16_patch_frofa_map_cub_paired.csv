@@ -1,0 +1,5 @@
+method,backbone,head,setting,accuracy,ci95
+MAP,CLIP ViT-B/16 patch tokens,episode-trained MAP head,5-way 1-shot,46.21333431700865,0.8749779008237295
+FroFA + MAP,CLIP ViT-B/16 patch tokens,episode-trained MAP head,5-way 1-shot,45.40222324927648,0.8902080206987263
+MAP,CLIP ViT-B/16 patch tokens,episode-trained MAP head,5-way 5-shot,75.47777943809827,0.7650466287139772
+FroFA + MAP,CLIP ViT-B/16 patch tokens,episode-trained MAP head,5-way 5-shot,77.05555732548237,0.8191677319340728

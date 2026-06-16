@@ -1,0 +1,104 @@
+# CLIP-FroFA 改进实验过程与结论
+
+本实验线目标是进一步对齐 FroFA 原论文的核心假设：使用强预训练 frozen representation，在少样本阶段只训练轻量分类头，并在 frozen feature space 中做 FroFA-style augmentation。
+
+## 改进动机
+
+前面的实验已经完成 CUB 上的 ProtoNet baseline 和 FroFA-style ProtoNet 接入，但它们主要仍在 Conv64F 或 CUB episodic ResNet12 backbone 上训练。这样的设置更像“在传统 few-shot backbone 上增加特征扰动”，没有充分体现 FroFA 强调的 frozen feature setting。
+
+因此切换到 CLIP ViT-B/16 frozen encoder。这样可以将问题拆成两部分：
+
+```text
+CUB images
+-> frozen CLIP ViT-B/16 features
+-> lightweight few-shot head
+-> no-FroFA / FroFA comparison
+```
+
+## 实验过程
+
+第一步提取 CLIP global image features，运行 closed-form L2 linear probe，对比 no-FroFA 和 FroFA vector-feature 版本。
+
+第二步发现 pooled global embedding 上的 FroFA 没有带来提升，说明直接扰动 512 维全局向量并不符合 FroFA 原论文的 patch-token 假设。
+
+第三步改为提取 CLIP ViT-B/16 最后一层 projected patch tokens，得到 `N x 196 x 512` 的 token grid。
+
+第四步在 patch tokens 上进行 paired episode 评测。每个 episode 训练一个 MAP head，并比较不增强的 MAP 与 support patch-token FroFA + MAP。
+
+第五步进一步运行更接近原论文的 paperlike 路线：提取 projection 之前的 `post_ln` patch tokens，得到 `N x 196 x 768` 的 token grid；先在 validation split 上搜索 `alpha`、`num_aug` 和增强组合，再用 validation 选出的最佳配置在 test split 汇报。
+
+最后将 global feature 结果、projected patch-token paired 结果、paperlike sweep 结果和最终解释汇总到 `results/final_summary.csv`。
+
+## 实验结果
+
+| Experiment | Method | 5-way 1-shot | 5-way 5-shot | Main conclusion |
+| :--- | :--- | ---: | ---: | :--- |
+| Global CLIP feature | no-FroFA linear probe | 86.975 +/- 0.569 | 96.379 +/- 0.248 | Strong frozen feature baseline |
+| Global CLIP feature | FroFA linear probe | 85.717 +/- 0.574 | 95.733 +/- 0.295 | Pooled embedding FroFA hurts |
+| Patch-token paired | MAP | 46.213 +/- 0.875 | 75.478 +/- 0.765 | Patch-token MAP baseline |
+| Patch-token paired | FroFA + MAP | 45.402 +/- 0.890 | 77.056 +/- 0.819 | FroFA improves 5-shot by +1.578 |
+| Paperlike post-LN val sweep | MAP | 42.187 +/- 0.816 | 68.878 +/- 0.884 | Validation-selected test baseline |
+| Paperlike post-LN val sweep | FroFA + MAP | 43.960 +/- 0.854 | 72.893 +/- 0.833 | FroFA improves 1-shot by +1.773 and 5-shot by +4.016 |
+
+数据来源：
+
+```text
+experiments/clip_frofa_improvement/results/clip_vit_b16_frofa_linear_cub.csv
+experiments/clip_frofa_improvement/results/clip_vit_b16_patch_frofa_map_cub_paired.csv
+experiments/clip_frofa_improvement/results/clip_vit_b16_postln_patch_frofa_map_sweep.csv
+experiments/clip_frofa_improvement/results/final_summary.csv
+```
+
+## 关键分析
+
+CLIP frozen global feature + no-FroFA linear probe 已经明显超过前面阶段的 task-trained ProtoNet-ResNet12 baseline。与 ResNet12 baseline 的 73.376 / 85.945 相比，global CLIP no-FroFA 达到 86.975 / 96.379，分别提升 13.599 和 10.434 个百分点。
+
+但是，在 pooled global feature 上加入 FroFA 后，1-shot 从 86.975 降到 85.717，5-shot 从 96.379 降到 95.733。这说明强 frozen feature 本身有效，但把 brightness FroFA 直接作用在压缩后的全局向量上并不合适。
+
+Patch-token 路线更接近 FroFA 原始假设。paired 正式实验中，FroFA + MAP 在 5-shot 上从 75.478 提升到 77.056，提升 1.578 个百分点；但在 1-shot 上从 46.213 降到 45.402，下降 0.811 个百分点。
+
+这个结果说明 patch-token FroFA 比 global-vector FroFA 更合理，尤其在 5-shot 中能改善 MAP head；但 1-shot 下 support 样本过少，增强强度、MAP 训练步数、weight decay 或 episode 采样仍需继续调参。
+
+paperlike 路线进一步验证了“更接近原论文设置”的价值。该路线使用 `post_ln` patch tokens，即 CLIP ViT 最后一层、projection 之前的 patch features，形状为 `N x 196 x 768`；先在 validation split 上搜索超参，再将最佳配置应用到 test split。validation sweep 选出的最佳配置为：
+
+```text
+alpha = 0.30
+num_aug = 8
+augmentation = brightness
+train_steps = 40
+weight_decay = 0.01
+```
+
+在 validation split 上，该配置使 1-shot 从 41.511 提升到 42.178，提升 0.667；5-shot 从 67.278 提升到 71.033，提升 3.756。在 test split 上，MAP baseline 为 42.187 / 68.878，FroFA + MAP 达到 43.960 / 72.893，分别提升 1.773 和 4.016 个百分点。
+
+## 最终结论
+
+本改进实验最明确的结论是：使用 CLIP ViT-B/16 frozen features 能显著改善 CUB few-shot 表现，说明强预训练 representation 比继续训练小型 episodic backbone 更有价值。
+
+FroFA 的有效载体更可能是 ViT patch-token grid，而不是 pooled global embedding。最终 paperlike 实验表明，当使用 projection 之前的 `post_ln` patch tokens，并通过 validation split 选择 FroFA 超参后，FroFA + MAP 在 test split 的 1-shot 和 5-shot 上都取得提升，尤其 5-shot 提升达到 4.016 个百分点。
+
+因此，最终报告中应把 paperlike 路线作为主结果：`post_ln` patch tokens + validation-selected brightness c2FroFA + MAP head。projected patch-token paired result 可以作为中间消融，说明从 global embedding 走向 patch-token grid 是必要的。
+
+## 进一步贴近原论文的新增路线
+
+为进一步靠近 FroFA 原论文，当前代码新增了 paperlike 路线：
+
+```text
+scripts/clip_frofa/run_patch_frofa_paperlike_cloud.sh
+scripts/clip_frofa/run_frofa_map_sweep.py
+```
+
+它相比已有 paired patch-token 实验有三点改进：
+
+1. 使用 `post_ln` patch tokens，即 CLIP ViT 最后一层、projection 之前的 patch features，形状约为 `N x 196 x 768`。这比 projected 512 维 CLIP embedding tokens 更接近论文中的 frozen ViT feature grid。
+2. 使用 validation split 选择超参。先在 val 上搜索 `alpha`、`num_aug` 和增强组合，再用最佳配置在 test split 汇报，避免直接根据 test 结果调参。
+3. 增加组合增强：`brightness`、`brightness+posterize`、`brightness+contrast`。这对应论文中 sequential FroFA 和多增强组合的思路。
+
+推荐运行：
+
+```bash
+export CLIP_PRETRAINED=artifacts/pretrained/open_clip_model.safetensors
+bash scripts/clip_frofa/run_patch_frofa_paperlike_cloud.sh
+```
+
+这条路线已经在 test 上取得正提升，因此可以作为最终报告的“更接近原论文复现”结果。仍需说明的限制是：本项目使用 CUB episodic split 和简化 MAP head，仍与原论文的大规模少样本迁移协议存在差异。

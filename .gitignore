@@ -41,7 +41,7 @@ env/
 ENV/
 env.bak/
 venv.bak/
-01_environment/.venv/
+environment/.venv/
 .python-version
 __pypackages__/
 
@@ -89,33 +89,28 @@ celerybeat-schedule
 celerybeat.pid
 *.sage.py
 
-# Datasets and local report artifacts
-03_datasets/**
-!03_datasets/
-!03_datasets/.gitkeep
+# Datasets, generated experiment outputs, and local artifacts
+data/**
+!data/
+!data/.gitkeep
 
-07_report/**
-!07_report/
-!07_report/.gitkeep
+artifacts/**
+!artifacts/
+!artifacts/README.md
 
-04_baseline_experiments/results/*
-!04_baseline_experiments/results/
-!04_baseline_experiments/results/*.md
-!04_baseline_experiments/results/*.csv
+experiments/*/results/*
+!experiments/*/results/
+!experiments/*/results/*.md
+!experiments/*/results/*.csv
 
-05_paper_reproduction/results/*
-!05_paper_reproduction/results/
-!05_paper_reproduction/results/*.md
-!05_paper_reproduction/results/*.csv
+third_party/LibFewShot/results/*
+!third_party/LibFewShot/results/
+!third_party/LibFewShot/results/README.md
 
-06_improvement/results/*
-!06_improvement/results/
-!06_improvement/results/*.md
-!06_improvement/results/*.csv
-
-02_libfewshot/LibFewShot/results/*
-!02_libfewshot/LibFewShot/results/
-!02_libfewshot/LibFewShot/results/README.md
+report/**/build/
+report/**/*.docx
+report/**/*.pdf
+report/**/*.pptx
 
 # Model checkpoints / large binary artifacts
 *.ckpt
@@ -127,7 +122,6 @@ celerybeat.pid
 *.npz
 *.t7
 *.safetensors
-06_improvement/pretrained/
 
 # Logs and temporary files
 *.log
@@ -138,5 +132,5 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Nested upstream clone metadata; track source files in this project repo instead.
-02_libfewshot/LibFewShot/.git/
-02_libfewshot/LibFewShot/.git-upstream-backup/
+third_party/LibFewShot/.git/
+third_party/LibFewShot/.git-upstream-backup/

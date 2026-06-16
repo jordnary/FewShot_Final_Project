@@ -8,44 +8,53 @@
 2. 建立 ProtoNet baseline，用于后续方法复现和消融对比。
 3. 将 FroFA-style feature augmentation 接入 episodic few-shot 流程，比较 5-way 1-shot 与 5-way 5-shot 表现。
 4. 探索更强 frozen representation，重点关注 CLIP ViT-B/16 global features 与 patch tokens。
-5. 整理实验脚本、结果汇总和报告材料，使项目可以被他人快速理解、检查和扩展。
+5. 按论文思路组织 post-LN patch tokens、validation sweep 和 paired episode evaluation 的实验流程。
+6. 整理实验脚本、结果汇总和报告材料，使项目可以被快速理解、检查和演示。
 
 ## Repository Structure
 
 ```text
 .
-├── 00_docs/                  # 项目计划、论文笔记、阅读记录
-├── 01_environment/           # Python/Conda 依赖、环境配置和运行说明
-├── 02_libfewshot/            # LibFewShot 代码、配置改动和项目内说明
-├── 03_datasets/              # 数据集本地挂载目录；Git 仅保留空目录占位
-├── 04_baseline_experiments/  # ProtoNet baseline 运行脚本、配置和结果汇总
-├── 05_paper_reproduction/    # FroFA 论文复现相关代码、脚本和结果
-├── 06_improvement/           # CLIP/FroFA 改进实验、消融脚本和阶段总结
-└── 07_report/                # 本地报告、图表和展示材料；默认不纳入 Git
+├── environment/       # Python/Conda 依赖与环境说明
+├── data/              # 本地数据集挂载目录；Git 仅保留占位文件
+├── third_party/       # LibFewShot 框架代码和项目内改动说明
+├── configs/           # Baseline 与 FroFA 的 LibFewShot YAML 配置
+├── scripts/           # Baseline、FroFA、CLIP-FroFA 的运行入口
+├── experiments/       # 每条实验线的说明文档和可提交 CSV 结果
+├── docs/              # 项目计划、论文笔记和论文 PDF
+├── report/            # 最终报告、图表、表格和展示材料
+├── demo/              # 项目演示检查清单和辅助入口
+└── artifacts/         # 日志、checkpoint、feature cache、预训练权重等本地产物
 ```
 
 ## Main Workflow
 
-1. 阅读 `00_docs/project_plan.md` 了解项目路线和候选论文。
-2. 按 `01_environment/setup_guide.md` 配置运行环境，并安装 `01_environment/requirements.txt` 中的依赖。
-3. 将 CUB 等本地数据放入 `03_datasets/`。该目录用于体现项目结构，但真实数据文件不提交到 Git。
-4. 运行 `04_baseline_experiments/` 中的 ProtoNet baseline 脚本，确认 LibFewShot、数据划分和评估流程正常。
-5. 运行 `05_paper_reproduction/` 中的 FroFA 复现实验，并与 baseline 结果对比。
-6. 运行 `06_improvement/` 中的 CLIP frozen feature 与 patch-token FroFA 实验，分析改进是否稳定。
-7. 最终报告和图表可在本地放入 `07_report/`，该目录内容默认被 `.gitignore` 忽略。
+1. 按 `environment/setup_guide.md` 配置环境，并安装 `environment/requirements.txt`。
+2. 将 CUB 数据放入 `data/CUB_200_2011/`，至少包含 `images/`、`train.csv`、`val.csv` 和 `test.csv`。
+3. 运行 `scripts/baseline/` 中的 ProtoNet baseline 脚本，生成 baseline 对照。
+4. 运行 `scripts/frofa/` 中的 FroFA 复现实验，并与 baseline 对比。
+5. 运行 `scripts/clip_frofa/` 中的 CLIP frozen feature、patch-token MAP 和 paperlike sweep 实验。
+6. 在 `experiments/*/results/` 查看可提交的 CSV 汇总，在 `report/` 整理最终报告和展示材料。
+
+## Experiment Lines
+
+- Baseline: CUB 上的 ProtoNet few-shot classification，对比 Conv64F 与 ResNet12。
+- FroFA reproduction: FroFA-style support feature augmentation，接入 LibFewShot episodic ProtoNet 流程。
+- CLIP-FroFA improvement: 使用 CLIP ViT-B/16 frozen global features、projected patch tokens、post-LN patch tokens 与 MAP head，比较 no-FroFA、vector-level FroFA、patch-token FroFA 和 validation-selected paperlike FroFA。
 
 ## Data And Outputs
 
-`03_datasets/` 只提交 `.gitkeep` 占位文件。克隆仓库后，使用者需要自行下载或挂载 CUB 数据，并保持脚本中约定的数据路径。
+`data/` 只提交 `.gitkeep` 占位文件，真实图像数据不纳入 Git。
 
-训练日志、模型权重、原始数据、报告导出文件和大体积二进制文件不纳入版本管理。可复查的小型结果表、阶段总结和运行脚本保留在对应实验目录中。
+`artifacts/` 保存日志、模型权重、特征缓存和预训练权重等大体积或可再生成产物，也不纳入 Git。可复查的小型结果表保留在 `experiments/*/results/`。
 
-## Current Experiment Line
+## Useful Entry Points
 
-当前主线由三部分组成：
+```bash
+pip install -r environment/requirements.txt
+bash scripts/baseline/run_proto_cub_boost_cloud.sh
+bash scripts/frofa/run_frofa_cub_cloud.sh all
+bash scripts/clip_frofa/run_patch_frofa_paperlike_cloud.sh
+```
 
-- Baseline: CUB 上的 ProtoNet few-shot classification，对比 Conv64F 与 ResNet12。
-- Reproduction: FroFA-style support feature augmentation，接入 LibFewShot episodic ProtoNet 流程。
-- Improvement: 使用 CLIP ViT-B/16 frozen global features 与 patch tokens，比较 no-FroFA、vector-level FroFA 和 patch-token FroFA。
-
-更详细的实验过程、参数和结果说明见各阶段目录下的 `docs/` 文件。
+更详细的运行顺序见 `docs/runbook.md` 和各实验目录下的 `run_guide.md`。

@@ -59,6 +59,6 @@ artifacts/pretrained/
 
 `artifacts/` 下内容默认不纳入 Git。
 
-## 报告撰写建议
+## 报告整理约定
 
-报告正文建议放在 `report/final_report/`，图表放在 `report/figures/` 和 `report/tables/`。实验解释优先引用 `experiments/*/experiment_summary.md`，结果数值优先引用 `experiments/*/results/*.csv`。
+报告正文放在 `report/final_report/`，图表放在 `report/figures/` 和 `report/tables/`。实验解释优先引用 `experiments/*/experiment_summary.md`，结果数值优先引用 `experiments/*/results/*.csv`。

@@ -10,4 +10,4 @@ report/
 └─ slides/
 ```
 
-建议将报告正文写在 `final_report/report.md`，将从 CSV 整理出的表格放入 `tables/`，将图像或可视化结果放入 `figures/`。
+报告正文放在 `final_report/report.md`，从 CSV 整理出的表格放入 `tables/`，图像或可视化结果放入 `figures/`。
